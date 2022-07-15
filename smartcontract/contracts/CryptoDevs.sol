@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,6 +11,7 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
     uint256 public _price = 0.01 ether; //  _price is the price of one Crypto Dev NFT
     bool public _paused; // _paused is used to pause the contract in case of an emergency
     uint256 public maxTokenIds = 20; //max number of tokens
+    uint256 public tokenIds;
     IWhitelist whitelist; // Whitelist contract instance
     bool public preSaleStarted; // boolean to keep track of whether presale started
     uint256 public preSaleEnded; // timestamp for when presale would end
@@ -25,6 +26,25 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
     {
         _baseTokenURI = baseURI;
         whitelist = IWhitelist(whitelistContract);
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     function startPresale() public onlyOwner {
@@ -49,7 +69,7 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
 
     function mint() public payable onlyWhenNotPaused {
         require(
-            presaleStarted && block.timestamp >= presaleEnded,
+            preSaleStarted && block.timestamp >= preSaleEnded,
             "Presale has not ended yet"
         );
         require(tokenIds < maxTokenIds, "Exceed maximum Crypto Devs supply");
@@ -73,7 +93,7 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
     function withdraw() public onlyOwner {
         address _owner = owner();
         uint256 amount = address(this).balance;
-        (bool sent, ) = _owner.call{value: "amount"}("");
+        (bool sent, ) = _owner.call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
 
@@ -83,3 +103,5 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
     //to receive ether when msg.value is not empty
     fallback() external payable {}
 }
+
+//Deployed:  0xfc04a349155902FaC17C17ac5dAB93FcA92E9BA7
