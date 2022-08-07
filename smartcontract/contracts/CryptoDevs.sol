@@ -104,4 +104,4 @@ contract CryptoDevs is ERC721, ERC721Enumerable, Ownable {
     fallback() external payable {}
 }
 
-//Deployed:  0xfc04a349155902FaC17C17ac5dAB93FcA92E9BA7
+//Deployed:  0x753FC8e2bcd3072A6C0F65bbA7826DADf4ee8d82
